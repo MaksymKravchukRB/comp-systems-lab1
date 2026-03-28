@@ -14,8 +14,10 @@ NGINX_SITE="mywebapp"                      # Nginx site name
 DB_NAME="notesdb"                          # PostgreSQL database name
 DB_USER="lab1"                             # PostgreSQL username
 DB_PASSWORD="mysecretpassword"             # Change to a strong password!
-GRADEBOOK_NUMBER="9"                       # Your group number N
-DEFAULT_USER_TO_LOCK="vboxuser"            # Default user on Ubuntu 24.04 server (adjust if needed)
+GRADEBOOK_NUMBER="9"                       # Group number N
+
+# Detect the default user (the one who invoked sudo)
+DEFAULT_USER_TO_LOCK="${SUDO_USER:-ubuntu}"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -39,8 +41,8 @@ check_root() {
 }
 
 check_prerequisites() {
-    if [ ! -f "lab1.csproj" ]; then
-        log_error "No lab1.csproj found in current directory. Are you in the project root?"
+    if [ ! -f "comp_systems_lab1.csproj" ]; then
+        log_error "No comp_systems_lab1.csproj found in current directory. Are you in the project root?"
         exit 1
     fi
     log_info "Prerequisites OK."
@@ -261,8 +263,13 @@ create_gradebook() {
 # 10. Block default user
 # ============================================
 lock_default_user() {
-    log_info "Locking default user ($DEFAULT_USER_TO_LOCK)..."
+    # Check if the default user is one of the created users
+    if [[ "$DEFAULT_USER_TO_LOCK" == "student" || "$DEFAULT_USER_TO_LOCK" == "teacher" || "$DEFAULT_USER_TO_LOCK" == "operator" || "$DEFAULT_USER_TO_LOCK" == "app" ]]; then
+        log_info "Default user $DEFAULT_USER_TO_LOCK is one of the created users, skipping lock."
+        return
+    fi
     if id "$DEFAULT_USER_TO_LOCK" &>/dev/null; then
+        log_info "Locking default user $DEFAULT_USER_TO_LOCK..."
         passwd -l "$DEFAULT_USER_TO_LOCK"
         log_info "User $DEFAULT_USER_TO_LOCK locked."
     else
