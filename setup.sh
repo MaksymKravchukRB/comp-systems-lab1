@@ -179,11 +179,18 @@ EOF
 deploy_app() {
     log_info "Building and publishing the application..."
 
-    # Clean previous publish (optional)
+    # Find the first .csproj file (assume it's the main one)
+    PROJECT_FILE=$(ls *.csproj | head -n1)
+    if [ -z "$PROJECT_FILE" ]; then
+        log_error "No .csproj file found in current directory."
+        exit 1
+    fi
+
+    # Clean previous publish
     rm -rf "$DEPLOY_PATH"
 
     # Publish the application (Release configuration)
-    dotnet publish -c Release -o "$DEPLOY_PATH"
+    dotnet publish "$PROJECT_FILE" -c Release -o "$DEPLOY_PATH"
 
     # Set permissions
     chown -R app:app "$DEPLOY_PATH"
