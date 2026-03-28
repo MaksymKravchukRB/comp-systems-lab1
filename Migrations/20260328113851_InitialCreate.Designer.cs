@@ -12,7 +12,7 @@ using lab1.Data;
 namespace comp_systems_lab1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260328102549_InitialCreate")]
+    [Migration("20260328113851_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
