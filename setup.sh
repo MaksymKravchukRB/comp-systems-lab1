@@ -7,10 +7,10 @@ set -euo pipefail
 
 # Configuration variables
 PROJECT_ROOT="$(pwd)"                      # Where the script is run from
-DEPLOY_PATH="/opt/lab1"                    # Where the compiled app goes
-CONFIG_PATH="/etc/lab1"                    # Configuration directory
-SERVICE_NAME="lab1"                        # Systemd service name
-NGINX_SITE="lab1"                          # Nginx site name
+DEPLOY_PATH="/opt/mywebapp"                # Where the compiled app goes
+CONFIG_PATH="/etc/mywebapp"                # Configuration directory
+SERVICE_NAME="mywebapp"                    # Systemd service name
+NGINX_SITE="mywebapp"                      # Nginx site name
 DB_NAME="notesdb"                          # PostgreSQL database name
 DB_USER="lab1"                             # PostgreSQL username
 DB_PASSWORD="mysecretpassword"             # Change to a strong password!
@@ -200,8 +200,8 @@ Type=simple
 User=app
 Group=app
 WorkingDirectory=$DEPLOY_PATH
-ExecStartPre=/usr/bin/dotnet $DEPLOY_PATH/lab1.dll --migrate
-ExecStart=/usr/bin/dotnet $DEPLOY_PATH/lab1.dll
+ExecStartPre=/usr/bin/dotnet $DEPLOY_PATH/mywebapp.dll --migrate
+ExecStart=/usr/bin/dotnet $DEPLOY_PATH/mywebapp.dll
 Restart=on-failure
 
 [Install]
