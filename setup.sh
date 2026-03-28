@@ -92,12 +92,17 @@ create_users() {
 
     # Operator user – special handling on Ubuntu 24.04 (group 'operator' exists)
     if ! id "operator" &>/dev/null; then
-        # On Ubuntu 24.04, `adduser operator` may fail because group 'operator' exists.
-        # We'll use `useradd` which doesn't check group name conflicts.
-        useradd -m operator
+        if getent group operator >/dev/null; then
+            # Group exists, add user to that group
+            useradd -m -g operator operator
+            log_info "User 'operator' created and added to existing group 'operator'."
+        else
+            # Group does not exist, create it
+            useradd -m operator
+            log_info "User 'operator' created with new group 'operator'."
+        fi
         echo "operator:12345678" | chpasswd
         chage -d 0 operator
-        log_info "User 'operator' created (password 12345678, must change)."
     else
         log_info "User 'operator' already exists."
     fi
