@@ -8,14 +8,14 @@ set -euo pipefail
 # Configuration variables
 PROJECT_ROOT="$(pwd)"                      # Where the script is run from
 DEPLOY_PATH="/opt/lab1"                    # Where the compiled app goes
-CONFIG_PATH="/etc/lab1"                # Configuration directory
+CONFIG_PATH="/etc/lab1"                    # Configuration directory
 SERVICE_NAME="lab1"                        # Systemd service name
 NGINX_SITE="lab1"                          # Nginx site name
 DB_NAME="notesdb"                          # PostgreSQL database name
-DB_USER="lab1"                         # PostgreSQL username
+DB_USER="lab1"                             # PostgreSQL username
 DB_PASSWORD="mysecretpassword"             # Change to a strong password!
 GRADEBOOK_NUMBER="9"                       # Your group number N
-DEFAULT_USER_TO_LOCK="vboxuser"              # Default user on Ubuntu 24.04 server (adjust if needed)
+DEFAULT_USER_TO_LOCK="vboxuser"            # Default user on Ubuntu 24.04 server (adjust if needed)
 
 # Colors for output
 GREEN='\033[0;32m'
