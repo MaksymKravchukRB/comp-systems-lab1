@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 
-var configPath = "/etc/lab1/config.json";
+var configPath = "/etc/mywebapp/config.json";
 if (!File.Exists(configPath))
 {
     Console.Error.WriteLine($"Configuration file not found at {configPath}");
