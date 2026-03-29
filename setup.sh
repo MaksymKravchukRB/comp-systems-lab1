@@ -75,6 +75,7 @@ create_users() {
     if ! id "student" &>/dev/null; then
         useradd -m student
         usermod -aG sudo student
+        echo "student:student123" | chpasswd
         log_info "User 'student' created with sudo rights."
     else
         log_info "User 'student' already exists."
