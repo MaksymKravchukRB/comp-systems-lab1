@@ -1,0 +1,48 @@
+name: .NET CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+      - name: Lint Shell Scripts
+        uses: essentialkaos/shellcheck-action@v1
+        with:
+          files: setup.sh entrypoint.sh
+      - name: Lint YAML Files
+        uses: step-security/yamllint-github-action@v3
+        with:
+          yamllint_file_or_dir: .
+          yamllint_comment: true
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check Code Formatting
+        uses: xt0rted/dotnet-format@v1
+        with:
+          only-changed-files: true
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
