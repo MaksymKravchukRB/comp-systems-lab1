@@ -174,9 +174,9 @@ EOF
     log_info "Configuration file created."
 }
 
-# ============================================
+# ===========================================
 # 6. Build and deploy the application
-# ============================================
+# ===========================================
 deploy_app() {
     log_info "Building and publishing the application..."
 
