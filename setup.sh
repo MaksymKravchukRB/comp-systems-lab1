@@ -6,7 +6,7 @@ set -euo pipefail
 # ============================================
 
 # Configuration variables
-PROJECT_ROOT="$(pwd)"                      # Where the script is run from
+#PROJECT_ROOT="$(pwd)"                      # Where the script is run from
 DEPLOY_PATH="/opt/mywebapp"                # Where the compiled app goes
 CONFIG_PATH="/etc/mywebapp"                # Configuration directory
 SERVICE_NAME="mywebapp"                    # Systemd service name
@@ -181,7 +181,9 @@ deploy_app() {
     log_info "Building and publishing the application..."
 
     # Find the first .csproj file (assume it's the main one)
-    PROJECT_FILE=$(ls *.csproj | head -n1)
+    shopt -s nullglob
+    files=(*.csproj)
+    PROJECT_FILE="${files[0]}"
     if [ -z "$PROJECT_FILE" ]; then
         log_error "No .csproj file found in current directory."
         exit 1
