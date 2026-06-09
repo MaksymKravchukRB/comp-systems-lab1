@@ -26,11 +26,8 @@ jobs:
           yamllint_comment: true
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Check Code Formatting
-        uses: xt0rted/dotnet-format@v1
-        with:
-          only-changed-files: true
-
+      - name: Check code formatting
+        run: dotnet format --verify-no-changes --verbosity minimal
   build:
     runs-on: ubuntu-latest
 
