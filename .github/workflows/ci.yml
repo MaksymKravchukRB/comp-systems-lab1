@@ -1,3 +1,4 @@
+---
 name: .NET CI
 
 on:
@@ -27,11 +28,12 @@ jobs:
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Check code formatting
-        run: dotnet format
-          comp-systems-lab1.slnx --verify-no-changes --verbosity minimal
+        run: |
+          dotnet format comp-systems-lab1.slnx \
+            --verify-no-changes --verbosity minimal
+
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - name: Setup .NET
@@ -42,5 +44,47 @@ jobs:
         run: dotnet restore comp-systems-lab1.slnx
       - name: Build
         run: dotnet build --no-restore comp-systems-lab1.slnx
-      - name: Test
-        run: dotnet test comp-systems-lab1.slnx --no-build --verbosity normal
+
+      - name: Test with coverage
+        run: |
+          dotnet test comp-systems-lab1.slnx \
+            --no-build \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults
+
+      - name: Install reportgenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate coverage report
+        run: |
+          reportgenerator \
+            -reports:./TestResults/**/coverage.cobertura.xml \
+            -targetdir:./CoverageReport \
+            -reporttypes:Html
+
+      - name: Check coverage threshold (≥40%)
+        run: |
+          COVERAGE_FILE=$(find ./TestResults -name "coverage.cobertura.xml" | head -1)
+          if [ -z "$COVERAGE_FILE" ]; then
+            echo "Coverage file not found!"
+            exit 1
+          fi
+          LINE_RATE=$(grep -oP 'line-rate="\K[0-9.]+' "$COVERAGE_FILE" | head -1)
+          if [ -z "$LINE_RATE" ]; then
+            echo "Could not parse line-rate from coverage file."
+            exit 1
+          fi
+          COVERAGE=$(echo "$LINE_RATE * 100" | bc | cut -d. -f1)
+          echo "Line coverage: ${COVERAGE}%"
+          if [ "$COVERAGE" -lt 40 ]; then
+            echo "❌ Coverage ${COVERAGE}% is below the required 40%"
+            exit 1
+          fi
+          echo "✅ Coverage ${COVERAGE}% meets the requirement (≥40%)"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./CoverageReport
