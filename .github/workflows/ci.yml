@@ -68,15 +68,13 @@ jobs:
       - name: Check coverage threshold (≥40%)
         run: |
           # Find the cobertura XML file
-          COVERAGE_FILE=$(find ./TestResults -name
-           "coverage.cobertura.xml" | head -1)
+          COVERAGE_FILE=$(find ./TestResults -name "coverage.cobertura.xml" | head -1)
           if [ -z "$COVERAGE_FILE" ]; then
             echo "Coverage file not found!"
             exit 1
           fi
           # Extract line-rate (e.g., 0.85 = 85%)
-          LINE_RATE=$(grep -oP 
-          'line-rate="\K[0-9.]+' "$COVERAGE_FILE" | head -1)
+          LINE_RATE=$(grep -oP 'line-rate="\K[0-9.]+' "$COVERAGE_FILE" | head -1)
           if [ -z "$LINE_RATE" ]; then
             echo "Could not parse line-rate from coverage file."
             exit 1
