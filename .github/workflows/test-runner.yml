@@ -1,0 +1,15 @@
+name: Test Self-Hosted Runner
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  test-runner:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Test Runner Connection
+        run: echo "Self-hosted runner is online and ready to use!"
