@@ -22,7 +22,7 @@ public class HealthControllerTests
 
         var controller = new HealthController(context);
         var result = controller.Alive() as OkObjectResult;
-        
+
         Assert.NotNull(result);
         Assert.Equal(200, result.StatusCode);
         Assert.Equal("OK", result.Value);
@@ -41,7 +41,7 @@ public class HealthControllerTests
 
         var controller = new HealthController(context);
         var result = await controller.Ready() as OkObjectResult;
-        
+
         Assert.NotNull(result);
         Assert.Equal(200, result.StatusCode);
         Assert.Equal("OK", result.Value);

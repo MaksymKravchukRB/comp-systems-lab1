@@ -27,7 +27,7 @@ public class HomeControllerTests
     {
         var controller = CreateController("text/html");
         var result = controller.Index() as ContentResult;
-        
+
         Assert.NotNull(result);
         Assert.Equal("text/html", result.ContentType);
         Assert.Contains("Notes Service API", result.Content);
