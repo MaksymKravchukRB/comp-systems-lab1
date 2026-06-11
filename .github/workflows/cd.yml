@@ -19,10 +19,10 @@ jobs:
       - name: Set image tag
         id: vars
         run: |
-          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          REPO="${{ github.repository }}"
           TAG_NAME=${GITHUB_REF#refs/tags/}
-          echo "image_tag=ghcr.io/${REPO_LC}:${TAG_NAME}" >> $GITHUB_OUTPUT
-          echo "stable_tag=ghcr.io/${REPO_LC}:stable" >> $GITHUB_OUTPUT
+          echo "image_tag=ghcr.io/${REPO}:${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "stable_tag=ghcr.io/${REPO}:stable" >> $GITHUB_OUTPUT
 
       - name: Copy files to target node
         env:
