@@ -45,8 +45,9 @@ jobs:
           TARGET_HOST: ${{ secrets.TARGET_HOST }}
           TARGET_USER: ${{ secrets.TARGET_USER }}
         run: |
+          # Use sudo for docker-compose and systemctl
           ssh ${TARGET_USER}@${TARGET_HOST} \
-            "cd /opt/notes-service && docker-compose pull && systemctl restart notes-service"
+            "cd /opt/notes-service && sudo docker-compose pull && sudo systemctl restart notes-service"
 
       - name: Verify deployment
         env:
