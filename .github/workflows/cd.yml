@@ -1,0 +1,61 @@
+---
+name: CD
+
+# yamllint disable rule:truthy
+on:
+  push:
+    tags:
+      - "v*"
+# yamllint enable rule:truthy
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: vars
+        run: |
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "image_tag=ghcr.io/${REPO_LC}:${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "stable_tag=ghcr.io/${REPO_LC}:stable" >> $GITHUB_OUTPUT
+
+      - name: Copy files to target node
+        env:
+          TARGET_HOST: ${{ secrets.TARGET_HOST }}
+          TARGET_USER: ${{ secrets.TARGET_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          scp -o StrictHostKeyChecking=no docker-compose.yml \
+            ${TARGET_USER}@${TARGET_HOST}:/opt/notes-service/
+          ssh ${TARGET_USER}@${TARGET_HOST} \
+            "echo IMAGE_TAG=${{ steps.vars.outputs.image_tag }} > /opt/notes-service/.env"
+          ssh ${TARGET_USER}@${TARGET_HOST} \
+            "echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> /opt/notes-service/.env"
+
+      - name: Deploy on target node
+        env:
+          TARGET_HOST: ${{ secrets.TARGET_HOST }}
+          TARGET_USER: ${{ secrets.TARGET_USER }}
+        run: |
+          ssh ${TARGET_USER}@${TARGET_HOST} \
+            "cd /opt/notes-service && docker-compose pull && systemctl restart notes-service"
+
+      - name: Verify deployment
+        env:
+          TARGET_HOST: ${{ secrets.TARGET_HOST }}
+        run: |
+          sleep 15
+          curl --retry 5 --retry-delay 5 --fail \
+            http://${TARGET_HOST}/health/alive
+          curl --retry 5 --retry-delay 5 --fail \
+            http://${TARGET_HOST}/health/ready
+          curl --fail http://${TARGET_HOST}/notes
+          echo "✅ Verification passed"
