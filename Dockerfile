@@ -14,6 +14,9 @@ RUN dotnet publish comp_systems_lab1.csproj -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
+# Install missing Kerberos library for PostgreSQL
+RUN apt-get update && apt-get install -y libgssapi-krb5-2 && rm -rf /var/lib/apt/lists/*
+
 # Copy published application from build stage
 COPY --from=build /app/publish .
 
