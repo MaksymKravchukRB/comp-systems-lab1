@@ -16,7 +16,7 @@ WORKDIR /app
 
 # Install missing Kerberos library for PostgreSQL
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgssapi-krb5-2=1.20.1-6ubuntu1 && \
+    libgssapi-krb5-2=1.20.1-6ubuntu2.6 && \
     rm -rf /var/lib/apt/lists/*
     
 # Copy published application from build stage
