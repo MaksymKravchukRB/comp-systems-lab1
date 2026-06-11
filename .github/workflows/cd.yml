@@ -1,9 +1,12 @@
+---
 name: CD
 
+# yamllint disable rule:truthy
 on:
   push:
     tags:
-      - "v*" # triggers on tags like v1.0.0, v2.1.3, etc.
+      - "v*"
+# yamllint enable rule:truthy
 
 jobs:
   deploy:
@@ -30,28 +33,29 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          # Copy docker-compose.yml and create .env with secrets
-          scp -o StrictHostKeyChecking=no docker-compose.yml ${TARGET_USER}@${TARGET_HOST}:/opt/notes-service/
-          ssh ${TARGET_USER}@${TARGET_HOST} "echo IMAGE_TAG=${{ steps.vars.outputs.image_tag }} > /opt/notes-service/.env"
-          ssh ${TARGET_USER}@${TARGET_HOST} "echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> /opt/notes-service/.env"
+          scp -o StrictHostKeyChecking=no docker-compose.yml \
+            ${TARGET_USER}@${TARGET_HOST}:/opt/notes-service/
+          ssh ${TARGET_USER}@${TARGET_HOST} \
+            "echo IMAGE_TAG=${{ steps.vars.outputs.image_tag }} > /opt/notes-service/.env"
+          ssh ${TARGET_USER}@${TARGET_HOST} \
+            "echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> /opt/notes-service/.env"
 
       - name: Deploy on target node
         env:
           TARGET_HOST: ${{ secrets.TARGET_HOST }}
           TARGET_USER: ${{ secrets.TARGET_USER }}
         run: |
-          ssh ${TARGET_USER}@${TARGET_HOST} "cd /opt/notes-service && docker-compose pull && systemctl restart notes-service"
+          ssh ${TARGET_USER}@${TARGET_HOST} \
+            "cd /opt/notes-service && docker-compose pull && systemctl restart notes-service"
 
       - name: Verify deployment
         env:
           TARGET_HOST: ${{ secrets.TARGET_HOST }}
         run: |
-          # Wait for service to become healthy
           sleep 15
-          # Check alive endpoint
-          curl --retry 5 --retry-delay 5 --fail http://${TARGET_HOST}/health/alive
-          # Check ready endpoint (tests DB connection)
-          curl --retry 5 --retry-delay 5 --fail http://${TARGET_HOST}/health/ready
-          # Optionally test notes API
+          curl --retry 5 --retry-delay 5 --fail \
+            http://${TARGET_HOST}/health/alive
+          curl --retry 5 --retry-delay 5 --fail \
+            http://${TARGET_HOST}/health/ready
           curl --fail http://${TARGET_HOST}/notes
           echo "✅ Verification passed"
